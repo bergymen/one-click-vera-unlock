@@ -1,0 +1,33 @@
+{
+    "author": "MakeAwesomeHappen",
+    "dependencies": {},
+    "keywords": [
+        "pebble-app"
+    ],
+    "name": "lockitron-one-click",
+    "pebble": {
+        "displayName": "Lockitron",
+        "enableMultiJS": true,
+        "messageKeys": [
+            "APP_READY",
+            "LOCK_STATE",
+            "LOCK_UUID",
+            "ACCESS_TOKEN"
+        ],
+        "projectType": "native",
+        "resources": {
+            "media": []
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "basalt",
+            "chalk",
+            "diorite"
+        ],
+        "uuid": "60dac362-3888-436d-96d2-17cb9d585033",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
