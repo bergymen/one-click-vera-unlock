@@ -1,22 +1,39 @@
 {
-    "author": "MakeAwesomeHappen",
+    "author": "gbergeron",
     "dependencies": {},
     "keywords": [
         "pebble-app"
     ],
-    "name": "lockitron-one-click",
+    "name": "one-click-vera-unlock",
     "pebble": {
-        "displayName": "Lockitron",
+        "capabilities": [
+            "configurable"
+        ],
+        "displayName": "Vera Unlock",
         "enableMultiJS": true,
         "messageKeys": [
             "APP_READY",
             "LOCK_STATE",
-            "LOCK_UUID",
-            "ACCESS_TOKEN"
+            "CONFIGURED",
+            "TOGGLE"
         ],
         "projectType": "native",
         "resources": {
-            "media": []
+            "media": [
+                {
+                    "file": "images/lock.png",
+                    "menuIcon": true,
+                    "name": "APP_ICON",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/config-required.png",
+                    "name": "CONFIG_REQUIRED",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+            ]
         },
         "sdkVersion": "3",
         "targetPlatforms": [

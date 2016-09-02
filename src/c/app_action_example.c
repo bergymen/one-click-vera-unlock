@@ -1,12 +1,9 @@
 #include <pebble.h>
 #include "app_action_example.h"
-
-// Virtual Lockitron settings (https://api.lockitron.com/v1/getting_started/virtual_locks)
-#define LOCKITRON_LOCK_UUID "95c22a11-4c9e-4420-adf0-11f1b36575f2"
-#define LOCKITRON_ACCESS_TOKEN "99e75a775fe737bb716caf88f161460bb623d283c3561c833480f0834335668b"
+#include "dialog_config_window.h"
 
 static Window *s_window;
-static LockitronLockState s_lockitron_state;
+static VeraLockState s_vera_state;
 static TextLayer *s_txt_layer;
 
 int main(void) {
@@ -50,23 +47,36 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
   Tuple *ready_tuple = dict_find(iter, MESSAGE_KEY_APP_READY);
   if (ready_tuple) {
     if(launch_reason() == APP_LAUNCH_USER || launch_reason() == APP_LAUNCH_QUICK_LAUNCH) {
-      // Toggle the Lockitron!
-      prv_lockitron_toggle_state();
+      // Toggle the lock!
+      prv_vera_toggle_state();
     } else {
       // Application was just installed, or configured
       text_layer_set_text(s_txt_layer, "App Installed");
     }
     return;
   }
+	
+	Tuple *configured_tuple = dict_find(iter, MESSAGE_KEY_CONFIGURED);
+	if(configured_tuple){
+		//show config page if not configured
+		bool configured = (bool)configured_tuple->value->int32;
+		if(!configured){
+			//show config page
+			dialog_config_window_push();
+		}
+		else{
+			dialog_config_window_remove();
+		}
+	}
 
   Tuple *lock_state_tuple = dict_find(iter, MESSAGE_KEY_LOCK_STATE);
   if (lock_state_tuple) {
     // Lockitron state has changed
-    s_lockitron_state = (LockitronLockState)lock_state_tuple->value->int32;
+    s_vera_state = (VeraLockState)lock_state_tuple->value->int32;
 
     // Display the current lock state
     static char str[50];
-    snprintf(str, sizeof(str), "Door is now\n%s", prv_lockitron_status_message(&s_lockitron_state));
+    snprintf(str, sizeof(str), "Door is now\n%s", prv_vera_status_message(&s_vera_state));
     text_layer_set_text(s_txt_layer, str);
 
     // Exit the application, after timeout
@@ -79,7 +89,8 @@ static void prv_exit_delay() {
   int timeout = preferred_result_display_duration();
 
   // After the timeout, exit the application
-  AppTimer *timer = app_timer_register(timeout, prv_exit_application, NULL);
+  //AppTimer *timer = app_timer_register(timeout, prv_exit_application, NULL);
+	app_timer_register(timeout, prv_exit_application, NULL);
 }
 
 static void prv_exit_application(void *data) {
@@ -90,16 +101,16 @@ static void prv_exit_application(void *data) {
   window_stack_remove(s_window, false);
 }
 
-// Request a state change for the Lockitron (Unlock/Lock)
-static void prv_lockitron_toggle_state() {
+// Request a state change for the vera (Unlock/Lock)
+/*NOT USED*/
+static void prv_vera_toggle_state() {
   DictionaryIterator *out;
   AppMessageResult result = app_message_outbox_begin(&out);
   if (result != APP_MSG_OK) {
     text_layer_set_text(s_txt_layer, "Outbox Failed");
   }
 
-  dict_write_cstring(out, MESSAGE_KEY_LOCK_UUID, LOCKITRON_LOCK_UUID);
-  dict_write_cstring(out, MESSAGE_KEY_ACCESS_TOKEN, LOCKITRON_ACCESS_TOKEN);
+	dict_write_int8(out, MESSAGE_KEY_TOGGLE, 1);
 
   result = app_message_outbox_send();
   if (result != APP_MSG_OK) {
@@ -113,7 +124,7 @@ static void prv_window_unload(Window *window) {
 
 static void prv_deinit(void) {
   // Before the application terminates, setup the AppGlance
-  app_glance_reload(prv_update_app_glance, &s_lockitron_state);
+  app_glance_reload(prv_update_app_glance, &s_vera_state);
 }
 
 // Create the AppGlance displayed in the system launcher
@@ -121,12 +132,12 @@ static void prv_update_app_glance(AppGlanceReloadSession *session, size_t limit,
   // Check we haven't exceeded system limit of AppGlance's
   if (limit < 1) return;
 
-  // Retrieve the current Lockitron state from context
-  LockitronLockState *lockitron_state = context;
+  // Retrieve the current vera state from context
+  VeraLockState *vera_state = context;
 
-  // Generate a friendly message for the current Lockitron state
+  // Generate a friendly message for the current vera state
   char str[50];
-  snprintf(str, sizeof(str), "%s", prv_lockitron_status_message(lockitron_state));
+  snprintf(str, sizeof(str), "%s", prv_vera_status_message(vera_state));
   APP_LOG(APP_LOG_LEVEL_INFO, "STATE: %s", str);
 
   // Create the AppGlanceSlice (no icon, no expiry)
@@ -144,12 +155,12 @@ static void prv_update_app_glance(AppGlanceReloadSession *session, size_t limit,
   }
 }
 
-// Generate a string to display the Lockitron state
-const char * prv_lockitron_status_message(LockitronLockState *state) {
+// Generate a string to display the vera state
+const char * prv_vera_status_message(VeraLockState *state) {
   switch(*state) {
-    case LOCKITRON_UNLOCKED:
+    case VERA_UNLOCKED:
       return "UNLOCKED";
-    case LOCKITRON_LOCKED:
+    case VERA_LOCKED:
       return "LOCKED";
     default:
       return "UNKNOWN";
