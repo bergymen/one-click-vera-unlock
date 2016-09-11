@@ -1,6 +1,8 @@
 #include <pebble.h>
 #include "app_action_example.h"
 #include "dialog_config_window.h"
+#include "progress_layer_window.h"
+#include "error_message_window.h"
 
 static Window *s_window;
 static VeraLockState s_vera_state;
@@ -14,7 +16,8 @@ int main(void) {
 
 static void prv_init(void) {
   prv_init_app_message();
-
+	
+	s_vera_state = (VeraLockState) 2;
   s_window = window_create();
   window_set_window_handlers(s_window, (WindowHandlers) {
     .load = prv_window_load,
@@ -49,6 +52,11 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
     if(launch_reason() == APP_LAUNCH_USER || launch_reason() == APP_LAUNCH_QUICK_LAUNCH) {
       // Toggle the lock!
       prv_vera_toggle_state();
+			progress_layer_window_push();
+			//remove main window
+			/*if(s_window){
+				window_stack_remove(s_window, false);
+			}*/
     } else {
       // Application was just installed, or configured
       text_layer_set_text(s_txt_layer, "App Installed");
@@ -66,6 +74,20 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
 		}
 		else{
 			dialog_config_window_remove();
+			prv_exit_delay();
+		}
+	}
+	
+	Tuple *error_tuple = dict_find(iter, MESSAGE_KEY_ERROR);
+	if(error_tuple){
+		//show error page
+		//static char str[50];
+		error_message_window_push(error_tuple->value->cstring);
+		dialog_config_window_remove();
+		progress_layer_window_remove();
+		//remove main window
+		if(s_window){
+			window_stack_remove(s_window, false);
 		}
 	}
 
@@ -81,6 +103,13 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
 
     // Exit the application, after timeout
     prv_exit_delay();
+  }
+	
+	Tuple *step_tuple = dict_find(iter, MESSAGE_KEY_STEP);
+  if (step_tuple) {
+    // current step
+    int step = (int)step_tuple->value->int32;
+		set_step(step);
   }
 }
 
@@ -98,7 +127,11 @@ static void prv_exit_application(void *data) {
   exit_reason_set(APP_EXIT_ACTION_PERFORMED_SUCCESSFULLY);
 
   // Exit the application by unloading the only window
-  window_stack_remove(s_window, false);
+	if(s_window){
+  	window_stack_remove(s_window, false);
+	}
+	//remove loading if present
+	progress_layer_window_remove();
 }
 
 // Request a state change for the vera (Unlock/Lock)
@@ -163,6 +196,6 @@ const char * prv_vera_status_message(VeraLockState *state) {
     case VERA_LOCKED:
       return "LOCKED";
     default:
-      return "UNKNOWN";
+      return "";//"UNKNOWN";
   }
 }

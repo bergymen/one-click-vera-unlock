@@ -15,11 +15,19 @@
             "APP_READY",
             "LOCK_STATE",
             "CONFIGURED",
-            "TOGGLE"
+            "TOGGLE",
+            "STEP",
+            "ERROR"
         ],
         "projectType": "native",
         "resources": {
             "media": [
+                {
+                    "file": "images/warning.png",
+                    "name": "WARNING",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
                 {
                     "file": "images/lock.png",
                     "menuIcon": true,
