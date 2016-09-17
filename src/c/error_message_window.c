@@ -32,6 +32,7 @@ static void window_load(Window *window) {
 
   const GEdgeInsets background_insets = {.top = bounds.size.h  /* Start hidden */};
   s_background_layer = layer_create(grect_inset(bounds, background_insets));
+	//s_background_layer = layer_create(GRect(0,0,bounds.size.w, bounds.size.h));
   layer_set_update_proc(s_background_layer, background_update_proc);
   layer_add_child(window_layer, s_background_layer);
 
@@ -98,7 +99,8 @@ static void window_appear(Window *window) {
   animation_set_handlers(s_appear_anim, (AnimationHandlers) {
     .stopped = anim_stopped_handler
   }, NULL);
-  animation_set_delay(s_appear_anim, 700);
+  //animation_set_delay(s_appear_anim, 700);
+	animation_set_delay(s_appear_anim, 100);
   animation_schedule(s_appear_anim);
 }
 

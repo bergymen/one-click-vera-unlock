@@ -38,14 +38,14 @@ static void window_load(Window *window) {
   s_progress_layer = progress_layer_create(GRect((bounds.size.w - PROGRESS_LAYER_WINDOW_WIDTH) / 2, (bounds.size.w/4)*3, PROGRESS_LAYER_WINDOW_WIDTH, 6));
   progress_layer_set_progress(s_progress_layer, 0);
   progress_layer_set_corner_radius(s_progress_layer, 2);
-  progress_layer_set_foreground_color(s_progress_layer, GColorWhite);
-  progress_layer_set_background_color(s_progress_layer, GColorBlack);
+  progress_layer_set_foreground_color(s_progress_layer, PBL_IF_COLOR_ELSE(GColorWhite, GColorBlack));
+  progress_layer_set_background_color(s_progress_layer, PBL_IF_COLOR_ELSE(GColorBlack, GColorLightGray));
   layer_add_child(window_layer, s_progress_layer);
 	
 	statusMessage = text_layer_create(GRect(0,25,bounds.size.w, (bounds.size.h/3)*2-31));
 	text_layer_set_text_alignment(statusMessage, GTextAlignmentCenter);
 	text_layer_set_background_color(statusMessage, GColorFromRGBA(0,0,0,0));
-	text_layer_set_text_color(statusMessage, GColorFromRGB(255,255,255));
+	text_layer_set_text_color(statusMessage, PBL_IF_COLOR_ELSE(GColorWhite, GColorBlack));
 	text_layer_set_font(statusMessage, fonts_get_system_font(FONT_KEY_GOTHIC_28));
 	update_status_string();
 	layer_add_child(window_layer, text_layer_get_layer(statusMessage));

@@ -1,5 +1,5 @@
 {
-    "author": "gbergeron",
+    "author": "GBergeron",
     "dependencies": {},
     "keywords": [
         "pebble-app"
@@ -23,6 +23,13 @@
         "resources": {
             "media": [
                 {
+                    "file": "images/vera icon.png",
+                    "menuIcon": true,
+                    "name": "VERA_LOGO",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "images/warning.png",
                     "name": "WARNING",
                     "targetPlatforms": null,
@@ -30,7 +37,6 @@
                 },
                 {
                     "file": "images/lock.png",
-                    "menuIcon": true,
                     "name": "APP_ICON",
                     "targetPlatforms": null,
                     "type": "bitmap"
